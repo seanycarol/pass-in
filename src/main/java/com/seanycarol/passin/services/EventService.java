@@ -11,7 +11,6 @@ import com.seanycarol.passin.domain.event.exceptions.EventNotFoundException;
 import com.seanycarol.passin.dto.event.EventIdDTO;
 import com.seanycarol.passin.dto.event.EventRequestDTO;
 import com.seanycarol.passin.dto.event.EventResponseDTO;
-import com.seanycarol.passin.repositories.AttendeeRepository;
 import com.seanycarol.passin.repositories.EventRepository;
 
 import lombok.RequiredArgsConstructor;
@@ -20,11 +19,11 @@ import lombok.RequiredArgsConstructor;
 @RequiredArgsConstructor
 public class EventService {
     private final EventRepository eventRepository;
-    private final AttendeeRepository attendeeRepository;
+    private final AttendeeService attendeeService;
 
     public EventResponseDTO getEventDetail(String eventId) {
         Event event = this.eventRepository.findById(eventId).orElseThrow(() -> new EventNotFoundException("Event not foun with ID: " + eventId));
-        List<Attendee> attendeeList = this.attendeeRepository.findByEventId(eventId);
+        List<Attendee> attendeeList = this.attendeeService.getAllAttendeesFromEvent(eventId);
         return new EventResponseDTO(event, attendeeList.size());
     }
 
