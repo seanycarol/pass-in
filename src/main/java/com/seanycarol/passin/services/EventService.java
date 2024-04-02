@@ -7,6 +7,7 @@ import org.springframework.stereotype.Service;
 
 import com.seanycarol.passin.domain.attendee.Attendee;
 import com.seanycarol.passin.domain.event.Event;
+import com.seanycarol.passin.domain.event.exceptions.EventNotFoundException;
 import com.seanycarol.passin.dto.event.EventIdDTO;
 import com.seanycarol.passin.dto.event.EventRequestDTO;
 import com.seanycarol.passin.dto.event.EventResponseDTO;
@@ -22,7 +23,7 @@ public class EventService {
     private final AttendeeRepository attendeeRepository;
 
     public EventResponseDTO getEventDetail(String eventId) {
-        Event event = this.eventRepository.findById(eventId).orElseThrow(() -> new RuntimeException("Event not foun with ID: " + eventId));
+        Event event = this.eventRepository.findById(eventId).orElseThrow(() -> new EventNotFoundException("Event not foun with ID: " + eventId));
         List<Attendee> attendeeList = this.attendeeRepository.findByEventId(eventId);
         return new EventResponseDTO(event, attendeeList.size());
     }
