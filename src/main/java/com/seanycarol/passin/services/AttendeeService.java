@@ -7,6 +7,7 @@ import java.util.Optional;
 import org.springframework.stereotype.Service;
 
 import com.seanycarol.passin.domain.attendee.Attendee;
+import com.seanycarol.passin.domain.attendee.exceptions.AttendeeAlreadyExistException;
 import com.seanycarol.passin.domain.checkin.CheckIn;
 import com.seanycarol.passin.dto.ateendee.AttendeeDetails;
 import com.seanycarol.passin.dto.ateendee.AttendeesListResponseDTO;
@@ -26,14 +27,27 @@ public class AttendeeService {
     }
 
     public AttendeesListResponseDTO getEventsAttendee(String eventId) {
-        List<Attendee> attendeeList = this.getAllAttendeesFromEvent(eventId); 
+        List<Attendee> attendeeList = this.getAllAttendeesFromEvent(eventId);
 
         List<AttendeeDetails> attendeeDetailsList = attendeeList.stream().map(attendee -> {
             Optional<CheckIn> checkIn = this.checkInRepository.findByAttendeeId(attendee.getId());
             LocalDateTime checkedInAt = checkIn.isPresent() ? checkIn.get().getCreatedAt() : null;
-            return new AttendeeDetails(attendee.getId(), attendee.getName(), attendee.getEmail(), attendee.getCreatedAt(), checkedInAt);
+            return new AttendeeDetails(attendee.getId(), attendee.getName(), attendee.getEmail(),
+                    attendee.getCreatedAt(), checkedInAt);
         }).toList();
 
         return new AttendeesListResponseDTO(attendeeDetailsList);
+    }
+
+    public Attendee registerAttendee(Attendee newAttendee) {
+        this.attendeeRepository.save(newAttendee);
+        return newAttendee;
+    }
+
+    public void verifyAttendeeSubscription(String email, String eventId) {
+        Optional<Attendee> isAttendeeRegistered = this.attendeeRepository.findByEventIdAndEmail(eventId, email);
+        if(isAttendeeRegistered.isPresent()) {
+            throw new AttendeeAlreadyExistException("Atteendee is already registered");
+        }
     }
 }
