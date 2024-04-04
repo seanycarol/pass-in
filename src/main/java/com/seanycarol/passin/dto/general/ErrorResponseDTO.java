@@ -1,5 +1,7 @@
 package com.seanycarol.passin.dto.general;
 
-public record ErrorResponseDTO(String message) {
+import java.time.LocalDateTime;
+
+public record ErrorResponseDTO(String message, int statusCode, LocalDateTime date) {
     
 }

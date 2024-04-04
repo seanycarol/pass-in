@@ -1,9 +1,14 @@
 package com.seanycarol.passin.config;
 
+import java.time.LocalDateTime;
+
+import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.ControllerAdvice;
 import org.springframework.web.bind.annotation.ExceptionHandler;
+import org.springframework.web.context.request.WebRequest;
+import org.springframework.web.servlet.mvc.method.annotation.ResponseEntityExceptionHandler;
 
 import com.seanycarol.passin.domain.attendee.exceptions.AttendeeAlreadyExistException;
 import com.seanycarol.passin.domain.attendee.exceptions.AttendeeNotFoundException;
@@ -13,30 +18,45 @@ import com.seanycarol.passin.domain.event.exceptions.EventNotFoundException;
 import com.seanycarol.passin.dto.general.ErrorResponseDTO;
 
 @ControllerAdvice
-public class ExceptionEntityHandler {
+public class ExceptionEntityHandler extends ResponseEntityExceptionHandler {
 
     @ExceptionHandler(EventNotFoundException.class)
-    public ResponseEntity handleEventNotFound(EventNotFoundException ex) {
-        return ResponseEntity.notFound().build();
+    public ResponseEntity<Object> handleEventNotFound(EventNotFoundException ex, WebRequest request) {
+        HttpStatus status = HttpStatus.NOT_FOUND;
+        
+        ErrorResponseDTO error = new ErrorResponseDTO(ex.getMessage(), status.value(), LocalDateTime.now());
+        return handleExceptionInternal(ex, error, new HttpHeaders(), status, request);
     }
 
     @ExceptionHandler(EventFullException.class)
-    public ResponseEntity<ErrorResponseDTO> handleEventFull(EventFullException ex) {
-        return ResponseEntity.badRequest().body(new ErrorResponseDTO(ex.getMessage()));
+    public ResponseEntity<Object> handleEventFull(EventFullException ex, WebRequest request) {
+        HttpStatus status = HttpStatus.BAD_REQUEST;
+
+        ErrorResponseDTO error = new ErrorResponseDTO(ex.getMessage(), status.value(), LocalDateTime.now());
+        return handleExceptionInternal(ex, error, new HttpHeaders(), status, request);
     }
     
     @ExceptionHandler(AttendeeNotFoundException.class)
-    public ResponseEntity handleAttendeeNotFound(AttendeeNotFoundException ex) {
-        return ResponseEntity.notFound().build();
+    public ResponseEntity<Object> handleAttendeeNotFound(AttendeeNotFoundException ex, WebRequest request) {
+        HttpStatus status = HttpStatus.NOT_FOUND;
+
+        ErrorResponseDTO error = new ErrorResponseDTO(ex.getMessage(), status.value(), LocalDateTime.now());
+        return handleExceptionInternal(ex, error, new HttpHeaders(), status, request);
     }
 
     @ExceptionHandler(AttendeeAlreadyExistException.class)
-    public ResponseEntity handleAttendeeAlreadyExists(AttendeeAlreadyExistException ex) {
-        return ResponseEntity.status(HttpStatus.CONFLICT).build();
+    public ResponseEntity<Object> handleAttendeeAlreadyExists(AttendeeAlreadyExistException ex, WebRequest request) {
+        HttpStatus status = HttpStatus.CONFLICT;
+
+        ErrorResponseDTO error = new ErrorResponseDTO(ex.getMessage(), status.value(), LocalDateTime.now());
+        return handleExceptionInternal(ex, error, new HttpHeaders(), status, request);
     }
 
     @ExceptionHandler(CheckInAlreadyExistsException.class)
-    public ResponseEntity handleCheckInAlreadyExists(CheckInAlreadyExistsException ex) {
-        return ResponseEntity.status(HttpStatus.CONFLICT).build();
+    public ResponseEntity<Object> handleCheckInAlreadyExists(CheckInAlreadyExistsException ex, WebRequest request) {
+        HttpStatus status = HttpStatus.CONFLICT;
+
+        ErrorResponseDTO error = new ErrorResponseDTO(ex.getMessage(), status.value(), LocalDateTime.now());
+        return handleExceptionInternal(ex, error, new HttpHeaders(), status, request);
     }
 }
